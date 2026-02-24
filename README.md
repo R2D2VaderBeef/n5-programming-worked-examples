@@ -120,7 +120,7 @@ Example questions include:
 
 
 ```
-/frontend
+/docs
     index.html
     /pages
         example1.html
@@ -170,7 +170,7 @@ Clone the repository:
 
 Open the website by opening:
 
-`frontend/index.html`
+`docs/index.html`
 
 in a web browser.
 
@@ -180,7 +180,7 @@ in a web browser.
 
 The website is deployed using **GitHub Pages**.
 
-The site is served from the `/frontend` directory.
+The site is served from the `/docs` directory.
 
 ---
 
