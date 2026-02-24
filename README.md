@@ -163,7 +163,7 @@ No external libraries or frameworks are required.
 
 Clone the repository:
 
-`git clone https://github.com/YOUR-USERNAME/n5-programming-worked-examples.git`
+`git clone https://github.com/aaronhughes05/n5-programming-worked-examples.git`
 
 Open the website by opening:
 
