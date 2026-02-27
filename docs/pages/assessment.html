@@ -21,6 +21,45 @@
           each item price and the final total.
         </p>
       </section>
+
+      <section class="card">
+        <h2>2. Prediction Activity</h2>
+        <div class="question-block">
+          <p>How many times will the main loop repeat?</p>
+          <div class="question-input">
+            <input type="text" id="pred1" style="width: 80px;">
+            <button onclick="checkAnswer('pred1', '5', 'tick1')">Check</button>
+            <span id="tick1" class="tick-mark"></span>
+          </div>
+        </div>
+
+        <div class="question-block">
+          <p>Which loop would you use to reject negative prices?</p>
+          <div class="question-input">
+            <input type="text" id="pred2" placeholder="for or while?" style="width: 140px;">
+            <button onclick="checkAnswer('pred2', 'while', 'tick2')">Check</button>
+            <span id="tick2" class="tick-mark"></span>
+          </div>
+        </div>
+
+        <div class="question-block">
+          <p>What variable stores the running total?</p>
+          <div class="question-input">
+            <input type="text" id="pred3" style="width: 140px;">
+            <button onclick="checkAnswer('pred3', 'total', 'tick3')">Check</button>
+            <span id="tick3" class="tick-mark"></span>
+          </div>
+        </div>
+
+        <div class="question-block">
+          <p>Should the list store each valid price? (yes/no)</p>
+          <div class="question-input">
+            <input type="text" id="pred4" style="width: 100px;">
+            <button onclick="checkAnswer('pred4', 'yes', 'tick4')">Check</button>
+            <span id="tick4" class="tick-mark"></span>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="../js/script.js"></script>
