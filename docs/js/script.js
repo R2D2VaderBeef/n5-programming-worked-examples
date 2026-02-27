@@ -31,6 +31,10 @@ function allowDrop(ev) {
 
 function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
+    ev.target.classList.add("dragging");
+    ev.target.addEventListener("dragend", () => {
+        ev.target.classList.remove("dragging");
+    }, { once: true });
 }
 
 function drop(ev) {
@@ -38,10 +42,31 @@ function drop(ev) {
     const data = ev.dataTransfer.getData("text");
     const draggedElement = document.getElementById(data);
     const dropTarget = ev.target.closest('.parsons-container');
-    
-    if (dropTarget) {
-        dropTarget.appendChild(draggedElement);
+
+    if (dropTarget && draggedElement) {
+        const afterElement = getDragAfterElement(dropTarget, ev.clientY);
+        if (afterElement == null) {
+            dropTarget.appendChild(draggedElement);
+        } else {
+            dropTarget.insertBefore(draggedElement, afterElement);
+        }
     }
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
+
+    return draggableElements.reduce(
+        (closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            }
+            return closest;
+        },
+        { offset: Number.NEGATIVE_INFINITY, element: null }
+    ).element;
 }
 
 const verifyParsons = (containerId, correctIds, feedbackId) => {
