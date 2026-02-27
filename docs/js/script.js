@@ -276,12 +276,17 @@ const showStep = (index) => {
     const prevBtn = document.getElementById("stepPrev");
     const nextBtn = document.getElementById("stepNext");
     const completion = document.getElementById("completionScreen");
+    const barFill = document.getElementById("stepperBarFill");
     if (progress) {
         progress.textContent = `Step ${index + 1} of ${stepperState.sections.length}`;
     }
     if (prevBtn) prevBtn.disabled = index === 0;
     if (nextBtn) nextBtn.textContent = index === stepperState.sections.length - 1 ? "Finish" : "Next";
     if (completion) completion.classList.remove("is-visible");
+    if (barFill) {
+        const pct = ((index + 1) / stepperState.sections.length) * 100;
+        barFill.style.width = `${pct}%`;
+    }
     updateStepperState();
 };
 
