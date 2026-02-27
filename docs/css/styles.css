@@ -128,7 +128,8 @@ p {
   color: var(--ink-700);
   font-size: 1rem;
   line-height: 1.65;
-  margin-bottom: 0;
+  margin: 0;
+
 }
 
 .hero-summary {
@@ -276,6 +277,30 @@ a:focus-visible {
 
 .example-item a:active {
   color: var(--ink-900);
+}
+
+.hidden {
+  display: none;
+}
+
+.step-box {
+  padding: var(--space-3);
+  background: var(--slate-50);
+  border-radius: var(--radius-1);
+  border-left: 4px solid var(--accent-600);
+}
+
+.step-box:first-of-type {
+  margin-top: 0;
+}
+
+.step-box code {
+  display: inline-block;
+  font-family: monospace;
+}
+
+.step-box button {
+  margin-top: var(--space-2);
 }
 
 .question-block {
