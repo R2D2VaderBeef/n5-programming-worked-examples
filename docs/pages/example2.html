@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Example 2 - Running Total</title>
     <link rel="stylesheet" href="../css/styles.css" />
-    <style>
-        .hidden { display: none; }
-        .step-box { padding: var(--space-3); background: var(--slate-50); border-radius: var(--radius-1); border-left: 4px solid var(--accent-600); }
-        .parsons-container { background: var(--slate-100); padding: var(--space-2); min-height: 150px; border-radius: var(--radius-1); border: 2px dashed var(--ink-300); }
-        .draggable { background: var(--paper); padding: var(--space-2); margin-bottom: var(--space-1); border: 1px solid var(--ink-300); cursor: grab; border-radius: 4px; font-family: monospace; }
-        button { background: var(--accent-600); color: white; border: none; padding: 8px 16px; border-radius: var(--radius-1); cursor: pointer; font-weight: 600; margin-top: var(--space-2); }
-        input[type="text"] { padding: 8px; border-radius: var(--radius-1); border: 1px solid var(--ink-300); margin-top: var(--space-1); }
-    </style>
 </head>
 <body>
     <header class="hero">
@@ -28,11 +20,14 @@
 
         <section class="card">
             <h2>2. Prediction Activity</h2>
-            <p>How many times will the loop repeat? 
-                <input type="text" id="pred1" style="width: 60px;">
-                <button onclick="checkAnswer('pred1', '5', 'tick1')">Check</button>
-                <span id="tick1" style="font-weight: bold; color: var(--teal-500);"></span>
-            </p>
+            <div class="question-block">
+                <p>How many times will the loop repeat?</p>
+                <div class="question-input">
+                    <input type="text" id="pred1" style="width: 80px;">
+                    <button onclick="checkAnswer('pred1', '5', 'tick1')">Check</button>
+                    <span id="tick1" class="tick-mark"></span>
+                </div>
+            </div>
         </section>
 
         <section class="card">
