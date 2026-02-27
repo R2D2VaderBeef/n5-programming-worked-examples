@@ -227,10 +227,10 @@ E: print("Total:", total)</code></pre>
 
       <section class="card">
         <h2>10. Make Task</h2>
-        <p>Write your own program below, select a test case and check the output matches.</p>
+        <p>Write your own program below, select a test case and check the output matches. You should write your program to match the text cases expected output, run the program and check the output.</p>
 
         <p><strong>Your Program</strong></p>
-        <textarea class="code-area" rows="12" placeholder="Write your program here..."></textarea>
+        <textarea class="code-area" id="makeProgram" rows="12" placeholder="Write your program here..."></textarea>
 
         <div class="question-block">
           <p><strong>Test Case</strong></p>
@@ -249,13 +249,19 @@ Total: 27
 Average: 4.5</code></pre>
 
         <p><strong>Your Output</strong></p>
-        <textarea class="output-area" id="makeOutput" rows="6" placeholder="Type the output you expect..."></textarea>
-        <button class="check-btn" onclick="checkOutput('makeCase', 'makeOutput', 'makeOutputTick')">Check Output</button>
+        <div class="run-row">
+          <button class="check-btn" id="runProgramBtn" onclick="runProgram()" disabled>Run Program</button>
+          <span id="runStatus" class="run-status">Python runtime loading...</span>
+        </div>
+        <pre><code id="makeActual">Run your program to see the output here.</code></pre>
+
+        <button class="check-btn" onclick="checkActualOutput('makeCase', 'makeActual', 'makeOutputTick')">Check Output</button>
         <span id="makeOutputTick" class="tick-mark"></span>
       </section>
 
     </main>
 
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script src="../js/script.js"></script>
   </body>
 </html>

@@ -189,8 +189,8 @@ const checkOutput = (caseSelectId, outputId, tickId) => {
 
     const expectedOutputs = {
         case1: "Scores: 2, 3, 4, 5, 6, 7\nTotal: 27\nAverage: 4.5",
-        case2: "Scores: 0, 10, 20, 30, 40, 50\nTotal: 150\nAverage: 25",
-        case3: "Scores: 5, 5, 5, 5, 5, 5\nTotal: 30\nAverage: 5"
+        case2: "Scores: 0, 10, 20, 30, 40, 50\nTotal: 150\nAverage: 25.0",
+        case3: "Scores: 5, 5, 5, 5, 5, 5\nTotal: 30\nAverage: 5.0"
     };
 
     const selectedCase = caseSelect.value;
@@ -215,9 +215,124 @@ const updateExpectedOutput = () => {
 
     const expectedOutputs = {
         case1: "Scores: 2, 3, 4, 5, 6, 7\nTotal: 27\nAverage: 4.5",
-        case2: "Scores: 0, 10, 20, 30, 40, 50\nTotal: 150\nAverage: 25",
-        case3: "Scores: 5, 5, 5, 5, 5, 5\nTotal: 30\nAverage: 5"
+        case2: "Scores: 0, 10, 20, 30, 40, 50\nTotal: 150\nAverage: 25.0",
+        case3: "Scores: 5, 5, 5, 5, 5, 5\nTotal: 30\nAverage: 5.0"
     };
 
     expectedEl.textContent = expectedOutputs[caseSelect.value] || "";
 };
+
+const checkActualOutput = (caseSelectId, actualOutputId, tickId) => {
+    const caseSelect = document.getElementById(caseSelectId);
+    const actualEl = document.getElementById(actualOutputId);
+    const tick = document.getElementById(tickId);
+    if (!caseSelect || !actualEl || !tick) return;
+
+    const expectedOutputs = {
+        case1: "Scores: 2, 3, 4, 5, 6, 7\nTotal: 27\nAverage: 4.5",
+        case2: "Scores: 0, 10, 20, 30, 40, 50\nTotal: 150\nAverage: 25.0",
+        case3: "Scores: 5, 5, 5, 5, 5, 5\nTotal: 30\nAverage: 5.0"
+    };
+
+    const expected = expectedOutputs[caseSelect.value] || "";
+    const actual = actualEl.textContent || "";
+
+    if (normalizeOutput(actual) === normalizeOutput(expected)) {
+        tick.style.display = "inline";
+        tick.textContent = " ✔ Correct";
+        tick.style.color = "var(--teal-500)";
+    } else {
+        tick.style.display = "inline";
+        tick.textContent = " ✖ Try again";
+        tick.style.color = "#e63946";
+    }
+};
+
+const getMakeInputs = (caseValue) => {
+    if (caseValue === "case1") return ["2", "3", "4", "5", "6", "7"];
+    if (caseValue === "case2") return ["0", "10", "20", "30", "40", "50"];
+    if (caseValue === "case3") return ["5", "5", "5", "5", "5", "5"];
+    return [];
+};
+
+const enableRunButton = () => {
+    const programEl = document.getElementById("makeProgram");
+    const runBtn = document.getElementById("runProgramBtn");
+    if (!programEl || !runBtn) return;
+    runBtn.disabled = programEl.value.trim().length === 0;
+};
+
+const runProgram = async () => {
+    const programEl = document.getElementById("makeProgram");
+    const caseSelect = document.getElementById("makeCase");
+    const outputEl = document.getElementById("makeActual");
+    const runBtn = document.getElementById("runProgramBtn");
+
+    if (!programEl || !caseSelect || !outputEl || !runBtn) return;
+    const statusEl = document.getElementById("runStatus");
+
+    const code = programEl.value;
+    if (!code.trim()) return;
+
+    runBtn.disabled = true;
+    runBtn.textContent = "Running...";
+    if (statusEl) statusEl.textContent = "Running Python...";
+
+    try {
+        if (!window.loadPyodide) {
+            throw new Error("Python runtime not loaded.");
+        }
+
+        if (!window.pyodide) {
+            if (statusEl) statusEl.textContent = "Loading Python runtime...";
+            window.pyodide = await loadPyodide({
+                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+            });
+            if (statusEl) statusEl.textContent = "Python ready.";
+        }
+
+        const inputs = getMakeInputs(caseSelect.value);
+        window.pyodide.globals.set("INPUTS", inputs);
+        window.pyodide.globals.set("USER_CODE", code);
+
+        const result = await window.pyodide.runPythonAsync(`
+import sys, io, builtins
+inputs = list(INPUTS)
+
+def input(prompt=""):
+    return inputs.pop(0) if inputs else ""
+
+builtins.input = input
+_buffer = io.StringIO()
+_old = sys.stdout
+sys.stdout = _buffer
+try:
+    exec(USER_CODE, {})
+finally:
+    sys.stdout = _old
+_buffer.getvalue()
+        `);
+
+        outputEl.textContent = result || "(no output)";
+        if (statusEl) statusEl.textContent = "Python ready.";
+    } catch (err) {
+        outputEl.textContent = "Error running code: " + err.message;
+        if (statusEl) statusEl.textContent = "Python error.";
+    } finally {
+        runBtn.textContent = "Run Program";
+        runBtn.disabled = programEl.value.trim().length === 0;
+    }
+};
+
+document.addEventListener("input", (event) => {
+    if (event.target && event.target.id === "makeProgram") {
+        enableRunButton();
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    enableRunButton();
+    updateExpectedOutput();
+    const statusEl = document.getElementById("runStatus");
+    if (statusEl) statusEl.textContent = "Python runtime ready when you run.";
+});

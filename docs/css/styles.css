@@ -308,10 +308,6 @@ a:focus-visible {
   font-weight: 600;
 }
 
-.step-box button {
-  margin-top: var(--space-2);
-}
-
 .question-block {
   margin-top: var(--space-2);
   display: flex;
@@ -556,7 +552,6 @@ button {
   font-weight: 700;
   font-family: var(--font-body);
   transition: background 0.2s, transform 0.1s;
-  margin-top: var(--space-2);
 }
 
 button:hover {
@@ -592,6 +587,11 @@ select {
   background: #ffffff;
 }
 
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .code-area,
 .output-area {
   width: 100%;
@@ -609,6 +609,19 @@ select {
     linear-gradient(90deg, transparent 31px, rgba(17, 27, 46, 0.02) 32px);
   background-size: 32px 32px;
   margin-top: var(--space-2);
+}
+
+.run-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.run-status {
+  font-size: 0.95rem;
+  color: var(--ink-500);
 }
 
 @keyframes fadeIn {
