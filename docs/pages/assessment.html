@@ -60,6 +60,21 @@
           </div>
         </div>
       </section>
+
+      <section class="card">
+        <h2>3. Full Solution (With Subgoal Labels)</h2>
+        <pre><code>A: total = 0
+A: items = []
+B: for counter in range(5):
+C:     price = float(input("Price: "))
+C:     while price &lt; 0:
+C:         price = float(input("Enter a valid price: "))
+C:     items.append(price)
+C:     total = total + price
+D: for value in items:
+D:     print(value)
+E: print("Total:", total)</code></pre>
+      </section>
     </main>
 
     <script src="../js/script.js"></script>
