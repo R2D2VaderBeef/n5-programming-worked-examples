@@ -42,20 +42,22 @@
             <h2>3. Step-by-Step Implementation</h2>
             <div id="step1" class="step-box">
                 <p><strong>Step 1:</strong> Initialize the total.</p>
-                <code>total = 0</code><br>
+                <pre><code>total = 0</code></pre>
                 <button onclick="nextStep(1, 2)">Next Step</button>
             </div>
             <div id="step2" class="step-box hidden">
                 <p><strong>Step 2:</strong> Create a loop for 5 items.</p>
-                <code>for counter in range(5):</code><br>
+                <pre><code>for counter in range(5):</code></pre>
                 <button onclick="nextStep(2, 3)">Next Step</button>
             </div>
             <div id="step3" class="step-box hidden">
                 <p><strong>Step 3:</strong> Add input to total.</p>
-                <code>&nbsp;&nbsp;price = float(input())<br>&nbsp;&nbsp;total = total + price</code><br>
+                <pre><code>    price = float(input())
+    total = total + price</code></pre>
                 <button onclick="nextStep(3, 'full')">Show Full Code</button>
             </div>
             <div id="fullCode" class="step-box hidden">
+                <p><strong>Full Solution:</strong> Combine all steps into one complete program.</p>
                 <pre><code>total = 0
 for counter in range(5):
     price = float(input("Price: "))

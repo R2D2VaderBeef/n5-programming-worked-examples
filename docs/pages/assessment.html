@@ -73,31 +73,33 @@
         <h2>3. Step-by-Step Implementation</h2>
         <div id="step1" class="step-box">
           <p><strong>Step 1:</strong> Set up the total and a list to store valid prices.</p>
-          <code>A: total = 0<br>A: items = []</code><br>
+          <pre><code>A: total = 0
+A: items = []</code></pre>
           <button onclick="nextStep(1, 2)">Next Step</button>
         </div>
         <div id="step2" class="step-box hidden">
           <p><strong>Step 2:</strong> Repeat exactly 5 times so each item is entered once.</p>
-          <code>B: for counter in range(5):</code><br>
+          <pre><code>B: for counter in range(5):</code></pre>
           <button onclick="nextStep(2, 3)">Next Step</button>
         </div>
         <div id="step3" class="step-box hidden">
           <p><strong>Step 3:</strong> Validate each price, store it, and update the running total.</p>
-          <code>C: &nbsp;&nbsp;price = float(input("Price: "))<br>
-          C: &nbsp;&nbsp;while price &lt; 0:<br>
-          C: &nbsp;&nbsp;&nbsp;&nbsp;price = float(input("Enter a valid price: "))<br>
-          C: &nbsp;&nbsp;items.append(price)<br>
-          C: &nbsp;&nbsp;total = total + price</code><br>
+          <pre><code>C:     price = float(input("Price: "))
+C:     while price &lt; 0:
+C:         price = float(input("Enter a valid price: "))
+C:     items.append(price)
+C:     total = total + price</code></pre>
           <button onclick="nextStep(3, 4)">Next Step</button>
         </div>
         <div id="step4" class="step-box hidden">
           <p><strong>Step 4:</strong> Traverse the list and display each price, then show the total.</p>
-          <code>D: for value in items:<br>
-          D: &nbsp;&nbsp;print(value)<br>
-          E: print("Total:", total)</code><br>
+          <pre><code>D: for value in items:
+D:     print(value)
+E: print("Total:", total)</code></pre>
           <button onclick="nextStep(4, 'full')">Show Full Code</button>
         </div>
         <div id="fullCode" class="step-box hidden">
+          <p><strong>Full Solution:</strong> Combine all steps into one complete program with subgoal labels.</p>
           <pre><code>A: total = 0
 A: items = []
 B: for counter in range(5):
