@@ -121,6 +121,7 @@ const setFeedbackState = (el, correct, message) => {
     el.dataset.correct = correct ? "true" : "false";
     el.textContent = message;
     el.style.color = correct ? "var(--teal-500)" : "#e63946";
+    el.style.fontWeight = "700";
     updateStepperState();
     saveStepperState();
 };
