@@ -269,6 +269,7 @@ body.is-complete main.content {
   align-items: center;
   justify-content: center;
   line-height: 1;
+  font-size: 13.3333px;
 }
 
 .card {
@@ -384,14 +385,21 @@ a:focus-visible {
 }
 
 .example-item a::after {
-  content: "";
-  display: inline-block;
-  width: 34px;
+  content: "Go";
+  color: var(--accent-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
   height: 26px;
   border-radius: 999px;
   background: rgba(31, 102, 209, 0.1);
   border: 1px solid rgba(31, 102, 209, 0.25);
-  background-image: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%231f66d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 2l4 4-4 4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 10px 10px;
+  padding: 0 22px 0 10px;
   transform: translateX(-6px);
   opacity: 0;
   grid-column: 2;
@@ -408,11 +416,12 @@ a:focus-visible {
 .example-item:focus-within a::after {
   transform: translateX(4px);
   opacity: 1;
+  color: var(--accent-600);
   background: linear-gradient(90deg, rgba(31, 102, 209, 0.18), rgba(31, 183, 166, 0.18));
   border-color: rgba(31, 102, 209, 0.4);
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%231f66d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 2l4 4-4 4'/></svg>");
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: right 8px center;
   background-size: 10px 10px;
 }
 
@@ -711,6 +720,57 @@ button:hover {
 .reset-btn:hover {
   background: linear-gradient(90deg, rgba(31, 102, 209, 0.28), rgba(31, 183, 166, 0.28));
   color: var(--accent-600);
+}
+
+.nav-btn {
+  position: relative;
+  padding-right: 38px;
+}
+
+.nav-btn::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 2l4 4-4 4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
+.nav-btn.back-btn {
+  padding-right: 22px;
+  padding-left: 38px;
+}
+
+.nav-btn.back-btn::after {
+  right: auto;
+  left: 12px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2L4 6l4 4'/></svg>");
+}
+
+.reset-btn,
+.restart-btn {
+  position: relative;
+  padding-right: 42px;
+}
+
+.reset-btn::after,
+.restart-btn::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%231f66d1' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M10 2v3H7'/><path d='M2 10V7h3'/><path d='M10 5a4 4 0 0 0-7-2'/><path d='M2 7a4 4 0 0 0 7 2'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
 }
 
 button:active {
