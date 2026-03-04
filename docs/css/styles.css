@@ -52,6 +52,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 @property --edge-angle {
@@ -331,6 +332,16 @@ body::before {
   .hero.hero-main {
     padding-top: 84px;
   }
+
+  #examples {
+    scroll-margin-top: 100px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 .hero,
@@ -338,6 +349,10 @@ body::before {
 .site-footer {
   width: min(100% - 32px, min(1100px, var(--max-width)));
   margin: 0 auto;
+}
+
+#examples {
+  scroll-margin-top: 120px;
 }
 
 .hero {
