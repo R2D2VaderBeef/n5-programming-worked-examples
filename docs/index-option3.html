@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crack the Code - Option 3</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      .v3-appbar {
+        --edge-angle: 0deg;
+        width: min(calc(100% - 32px), min(1100px, var(--max-width)));
+        margin: 0;
+        position: fixed;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        border-radius: 999px;
+        background: linear-gradient(120deg, rgba(37, 99, 235, 0.12), rgba(20, 184, 166, 0.08));
+        backdrop-filter: blur(6px);
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        overflow: clip;
+        transition: transform 220ms ease;
+      }
+
+      .v3-appbar::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        padding: 2px;
+        background: conic-gradient(
+          from calc(-45deg + var(--edge-angle)),
+          transparent 0deg,
+          transparent 300deg,
+          rgba(37, 99, 235, 0.85) 322deg,
+          rgba(37, 99, 235, 0.98) 340deg,
+          rgba(20, 184, 166, 0.9) 360deg
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease;
+        filter: drop-shadow(0 0 6px rgba(37, 99, 235, 0.2)) drop-shadow(0 0 10px rgba(20, 184, 166, 0.14));
+      }
+
+      .v3-appbar:hover,
+      .v3-appbar:focus-within {
+        transform: translateX(-50%) translateY(-2px);
+      }
+
+      .v3-appbar:hover::after,
+      .v3-appbar:focus-within::after {
+        opacity: 1;
+        animation: edgeSweepBalanced 1.9s linear infinite;
+      }
+
+      .v3-brand-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+      }
+
+      .v3-brand-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid rgba(37, 99, 235, 0.28);
+        background: rgba(255, 255, 255, 0.9);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-700);
+        font-weight: 800;
+        font-family: var(--font-code);
+        font-size: 0.9rem;
+        flex: 0 0 34px;
+      }
+
+      .v3-brand-stack {
+        min-width: 0;
+      }
+
+      .v3-brand {
+        font-weight: 800;
+        color: var(--ink-900);
+        line-height: 1.1;
+      }
+
+      .v3-subtitle {
+        font-size: 0.79rem;
+        color: var(--ink-700);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .v3-menu-toggle {
+        --edge-angle: 0deg;
+        display: none;
+        position: relative;
+        z-index: 2;
+        padding: 7px 12px;
+        border: 1px solid rgba(37, 99, 235, 0.3);
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--accent-700);
+        border-radius: 999px;
+        font-weight: 700;
+        overflow: clip;
+      }
+
+      .v3-nav-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .v3-nav-pill {
+        --edge-angle: 0deg;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(37, 99, 235, 0.28);
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 0.85rem;
+        color: var(--ink-800);
+        background: rgba(255, 255, 255, 0.88);
+        text-decoration: none;
+        font-weight: 700;
+        transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        position: relative;
+        overflow: clip;
+      }
+
+      .v3-nav-pill:hover,
+      .v3-nav-pill:focus-visible {
+        background: #eef5ff;
+        border-color: rgba(37, 99, 235, 0.45);
+        color: var(--accent-700);
+      }
+
+      .v3-brand-wrap,
+      .v3-menu-toggle,
+      .v3-nav-pill {
+        position: relative;
+      }
+
+      .v3-brand-wrap::after,
+      .v3-menu-toggle::after,
+      .v3-nav-pill::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        padding: 1.5px;
+        background: conic-gradient(
+          from calc(-45deg + var(--edge-angle)),
+          transparent 0deg,
+          transparent 305deg,
+          rgba(37, 99, 235, 0.8) 330deg,
+          rgba(20, 184, 166, 0.8) 360deg
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease;
+      }
+
+      .v3-nav-pill.is-active {
+        background: linear-gradient(120deg, rgba(37, 99, 235, 0.18), rgba(20, 184, 166, 0.16));
+        border-color: rgba(37, 99, 235, 0.48);
+        color: var(--accent-700);
+      }
+
+      .v3-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--success-600);
+        box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.18);
+        animation: v3DotPulse 1.35s ease-in-out infinite;
+      }
+
+      .v3-resume[hidden] {
+        display: none !important;
+      }
+
+      .hero.v3 {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding-top: 86px;
+      }
+
+      .hero.v3 .hero-summary {
+        max-width: 66ch;
+      }
+
+      .hero.v3 .hero-actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .hero.v3 .outline-btn {
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        background: #fff;
+        color: var(--accent-700);
+      }
+
+      .hero.v3 .outline-btn:hover,
+      .hero.v3 .outline-btn:focus-visible {
+        background: #eef5ff;
+        color: var(--accent-700);
+      }
+
+      @media (max-width: 980px) {
+        .v3-subtitle {
+          max-width: 220px;
+        }
+
+        .v3-menu-toggle {
+          display: inline-flex;
+        }
+
+        .v3-nav-actions {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          min-width: 235px;
+          max-width: 90vw;
+          background: #ffffff;
+          border: 1px solid rgba(159, 176, 201, 0.35);
+          border-radius: 16px;
+          box-shadow: 0 12px 24px rgba(11, 19, 36, 0.1);
+          padding: 10px;
+          display: none;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+
+        .v3-nav-actions.is-open {
+          display: flex;
+        }
+
+        .v3-nav-pill {
+          justify-content: center;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .v3-appbar {
+          border-radius: 18px;
+          top: 14px;
+        }
+
+        .hero.v3 {
+          padding-top: 84px;
+        }
+      }
+
+      @keyframes v3DotPulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.18), 0 0 0 0 rgba(14, 159, 110, 0.34);
+        }
+        60% {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.24), 0 0 0 8px rgba(14, 159, 110, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.18), 0 0 0 0 rgba(14, 159, 110, 0);
+        }
+      }
+    </style>
+  </head>
+  <body class="page">
+    <div class="v3-appbar" id="v3Appbar">
+      <div class="v3-brand-wrap">
+        <span class="v3-brand-icon" aria-hidden="true">&lt;/&gt;</span>
+        <div class="v3-brand-stack">
+          <div class="v3-brand">Crack the Code</div>
+          <div class="v3-subtitle">National 5 Computing Science</div>
+        </div>
+      </div>
+
+      <button class="v3-menu-toggle" id="v3MenuToggle" aria-expanded="false" aria-controls="v3NavActions" type="button">Menu</button>
+
+      <nav class="v3-nav-actions" id="v3NavActions" aria-label="Quick links">
+        <a class="v3-nav-pill is-active" href="index-option3.html">Home</a>
+        <a class="v3-nav-pill" href="#examples">Examples</a>
+        <a class="v3-nav-pill" href="pages/assessment.html">Final Assessment</a>
+        <a class="v3-nav-pill v3-resume" id="v3ResumeLink" href="#" hidden>
+          Resume
+          <span class="v3-status-dot" aria-hidden="true"></span>
+        </a>
+      </nav>
+    </div>
+
+    <header class="hero v3">
+      <h1 class="hero-title">Build Confidence Through Worked Programming Examples</h1>
+      <p class="hero-summary">
+        Crack the Code helps you move from a problem statement to a finished
+        solution with a repeatable process: predict, build, check, and reflect.
+      </p>
+      <div class="hero-actions">
+        <a class="check-btn" href="pages/example1.html">Start with Example 1</a>
+        <a class="check-btn outline-btn" href="pages/example3.html">Try Array Traversal</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="card">
+        <h2>Purpose of the Resource</h2>
+        <p>
+          This resource exists to make problem solving feel manageable and
+          achievable. You will learn how to plan a solution before coding and
+          how to explain what your program is doing.
+        </p>
+        <p>This resource helps you:</p>
+        <ul>
+          <li>Understand how to move from a problem description to working code</li>
+          <li>Learn how loops and algorithms work</li>
+          <li>Practise modifying programs</li>
+          <li>Check your understanding using interactive activities</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>How to Use the Website</h2>
+        <p>
+          Each example follows the same learning sequence so you always know what
+          to do next.
+        </p>
+        <p>Each example follows these steps:</p>
+        <ol>
+          <li>Read the problem</li>
+          <li>Predict the solution</li>
+          <li>Study the worked example</li>
+          <li>Complete interactive activities</li>
+          <li>Modify the program</li>
+          <li>Reflect on your understanding</li>
+        </ol>
+        <p>
+          Typical time per example: 20 to 30 minutes depending on your pace.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Before You Start</h2>
+        <p>Make sure you are comfortable with these basics:</p>
+        <ul>
+          <li>Variables and simple calculations</li>
+          <li>Input and output</li>
+          <li>Using a loop (for or while)</li>
+        </ul>
+        <p>Helpful tips while you work:</p>
+        <ul>
+          <li>Write down inputs and outputs before you code</li>
+          <li>Trace your loop with a small example</li>
+          <li>Check each step before moving on</li>
+        </ul>
+      </section>
+
+      <section class="card examples-card" id="examples">
+        <h2>Examples</h2>
+        <ul class="example-list">
+          <li class="example-item">
+            <a href="pages/example1.html">
+              <span class="example-title">Example 1 - Input Validation</span>
+              <span class="example-summary">Design checks to keep user input safe and correct.</span>
+            </a>
+          </li>
+          <li class="example-item">
+            <a href="pages/example2.html">
+              <span class="example-title">Example 2 - Running Total</span>
+              <span class="example-summary">Use loops and accumulators to build totals step by step.</span>
+            </a>
+          </li>
+          <li class="example-item">
+            <a href="pages/example3.html">
+              <span class="example-title">Example 3 - Array Traversal</span>
+              <span class="example-summary">Work through lists of data and apply logic to each item.</span>
+            </a>
+          </li>
+          <li class="example-item">
+            <a href="pages/assessment.html">
+              <span class="example-title">Final Assessment - Combining Concepts</span>
+              <span class="example-summary">Bring everything together with a short mixed activity set.</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>What You Will Learn</h2>
+        <ul>
+          <li>How to break a problem into clear inputs, processes, and outputs</li>
+          <li>How to choose the right loop for a task</li>
+          <li>How to test and explain your code confidently</li>
+        </ul>
+        <p>
+          If you get stuck, go back a few steps and re-read the problem description
+          or re-run the prediction activity.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Team E</p>
+      <p>Aaron Hughes, Varshini Seshan, Sophie MacLurg, Rabindranath Jha</p>
+      <p>2026 - UofG</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+      (function () {
+        const menuToggle = document.getElementById("v3MenuToggle");
+        const navActions = document.getElementById("v3NavActions");
+        const resumeLink = document.getElementById("v3ResumeLink");
+        const appbar = document.getElementById("v3Appbar");
+
+        if (menuToggle && navActions) {
+          menuToggle.addEventListener("click", () => {
+            const open = navActions.classList.toggle("is-open");
+            menuToggle.setAttribute("aria-expanded", String(open));
+          });
+
+          document.addEventListener("click", (event) => {
+            if (!appbar || !navActions.classList.contains("is-open")) return;
+            if (!appbar.contains(event.target)) {
+              navActions.classList.remove("is-open");
+              menuToggle.setAttribute("aria-expanded", "false");
+            }
+          });
+        }
+
+        const storagePrefix = "assessmentStepperState.v2:";
+        let best = null;
+
+        for (let i = 0; i < localStorage.length; i += 1) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith(storagePrefix)) continue;
+          const path = key.slice(storagePrefix.length);
+          if (!path.includes("/pages/")) continue;
+
+          let payload;
+          try {
+            payload = JSON.parse(localStorage.getItem(key) || "{}");
+          } catch {
+            continue;
+          }
+
+          const stepCount = Number(payload.stepCount || 0);
+          const index = Number(payload.index || 0);
+          if (stepCount < 2 || index <= 0) continue;
+
+          const progress = index / (stepCount - 1);
+          if (!best || progress > best.progress) {
+            best = { path, progress };
+          }
+        }
+
+        if (resumeLink && best) {
+          const docsMarker = "/docs/";
+          let href = "pages/example1.html";
+          const markerIndex = best.path.lastIndexOf(docsMarker);
+          if (markerIndex !== -1) {
+            href = best.path.slice(markerIndex + docsMarker.length);
+          }
+          resumeLink.href = href;
+          resumeLink.hidden = false;
+          resumeLink.title = "Resume your latest progress";
+        }
+      })();
+    </script>
+  </body>
+</html>
