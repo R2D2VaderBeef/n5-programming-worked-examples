@@ -620,6 +620,153 @@ const initBackToTopFab = () => {
     updateVisibility();
 };
 
+const initExamplesShowcase = () => {
+    const root = document.getElementById("examples");
+    if (!root) return;
+
+    const preview = root.querySelector(".examples-preview");
+    const tabs = Array.from(root.querySelectorAll(".examples-tab"));
+    const previewImage = document.getElementById("examplePreviewImage");
+    const previewKicker = document.getElementById("examplePreviewKicker");
+    const previewTitle = document.getElementById("examplePreviewTitle");
+    const previewDescription = document.getElementById("examplePreviewDescription");
+    const previewLink = document.getElementById("examplePreviewLink");
+
+    if (!preview || !tabs.length || !previewImage || !previewKicker || !previewTitle || !previewDescription || !previewLink) return;
+
+    const content = {
+        example1: {
+            kicker: "Example 1",
+            title: "Input Validation",
+            description: "Design checks that keep user input safe, sensible, and in range before processing.",
+            href: "pages/example1.html",
+            cta: "Start Example 1",
+            image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=960&q=80",
+            alt: "Student coding at a laptop"
+        },
+        example2: {
+            kicker: "Example 2",
+            title: "Running Total",
+            description: "Use loops and accumulators to build totals step by step while handling multiple inputs.",
+            href: "pages/example2.html",
+            cta: "Start Example 2",
+            image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=960&q=80",
+            alt: "Numbers and calculator representing totals"
+        },
+        example3: {
+            kicker: "Example 3",
+            title: "Array Traversal",
+            description: "Work through list data item by item and apply the same logic cleanly across each value.",
+            href: "pages/example3.html",
+            cta: "Start Example 3",
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=960&q=80",
+            alt: "Data dashboard representing arrays and values"
+        },
+        assessment: {
+            kicker: "Final Assessment",
+            title: "Combining Concepts",
+            description: "Bring validation, totals, and traversal together in one mixed challenge to check understanding.",
+            href: "pages/assessment.html",
+            cta: "Start Assessment",
+            image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=960&q=80",
+            alt: "Notebook and study materials for assessment"
+        }
+    };
+
+    // Preload showcase images to keep tab switches instant.
+    Object.values(content).forEach((item) => {
+        const img = new Image();
+        img.src = item.image;
+    });
+
+    let activeIndex = 0;
+    let timerId = null;
+    let swapTimeoutId = null;
+    const intervalMs = 5200;
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const showTab = (index, animate = true) => {
+        const safeIndex = (index + tabs.length) % tabs.length;
+        const tab = tabs[safeIndex];
+        const key = tab.dataset.exampleKey;
+        const item = content[key];
+        if (!item) return;
+
+        tabs.forEach((btn, idx) => {
+            const isActive = idx === safeIndex;
+            btn.classList.toggle("is-active", isActive);
+            btn.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+
+        const applyContent = () => {
+            previewImage.src = item.image;
+            previewImage.alt = item.alt;
+            previewKicker.textContent = item.kicker;
+            previewTitle.textContent = item.title;
+            previewDescription.textContent = item.description;
+            previewLink.href = item.href;
+            previewLink.textContent = item.cta;
+        };
+
+        if (swapTimeoutId) {
+            window.clearTimeout(swapTimeoutId);
+            swapTimeoutId = null;
+        }
+
+        if (reducedMotion || !animate) {
+            preview.classList.remove("is-swapping");
+            applyContent();
+        } else {
+            preview.classList.add("is-swapping");
+            swapTimeoutId = window.setTimeout(() => {
+                applyContent();
+                preview.classList.remove("is-swapping");
+                swapTimeoutId = null;
+            }, 190);
+        }
+
+        activeIndex = safeIndex;
+    };
+
+    const stopRotation = () => {
+        if (timerId) {
+            window.clearInterval(timerId);
+            timerId = null;
+        }
+    };
+
+    const startRotation = () => {
+        if (reducedMotion || timerId) return;
+        timerId = window.setInterval(() => {
+            showTab(activeIndex + 1);
+        }, intervalMs);
+    };
+
+    tabs.forEach((tab, idx) => {
+        tab.addEventListener("click", () => {
+            showTab(idx);
+            stopRotation();
+            startRotation();
+        });
+    });
+
+    root.addEventListener("mouseenter", stopRotation);
+    root.addEventListener("mouseleave", startRotation);
+    root.addEventListener("focusin", stopRotation);
+    root.addEventListener("focusout", (event) => {
+        if (root.contains(event.relatedTarget)) return;
+        startRotation();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stopRotation();
+        else startRotation();
+    });
+
+    showTab(0, false);
+    startRotation();
+};
+
 const runProgram = async () => {
     const programEl = document.getElementById("makeProgram");
     const caseSelect = document.getElementById("makeCase");
@@ -697,6 +844,7 @@ document.addEventListener("input", (event) => {
 document.addEventListener("DOMContentLoaded", () => {
     initAppbarEnhancements();
     initBackToTopFab();
+    initExamplesShowcase();
     enableRunButton();
     updateExpectedOutput();
     const statusEl = document.getElementById("runStatus");

@@ -36,7 +36,7 @@
         solution with a repeatable process: predict, build, check, and reflect.
       </p>
       <div class="hero-actions">
-        <a class="check-btn" href="pages/example1.html">Start with Example 1</a>
+        <a class="check-btn" href="pages/example1.html">Start with Input Validation</a>
         <a class="check-btn outline-btn" href="pages/example3.html">Try Array Traversal</a>
       </div>
     </header>
@@ -96,32 +96,37 @@
 
       <section class="card examples-card" id="examples">
         <h2>Examples</h2>
-        <ul class="example-list">
-          <li class="example-item">
-            <a href="pages/example1.html">
-              <span class="example-title">Example 1 - Input Validation</span>
-              <span class="example-summary">Design checks to keep user input safe and correct.</span>
-            </a>
-          </li>
-          <li class="example-item">
-            <a href="pages/example2.html">
-              <span class="example-title">Example 2 - Running Total</span>
-              <span class="example-summary">Use loops and accumulators to build totals step by step.</span>
-            </a>
-          </li>
-          <li class="example-item">
-            <a href="pages/example3.html">
-              <span class="example-title">Example 3 - Array Traversal</span>
-              <span class="example-summary">Work through lists of data and apply logic to each item.</span>
-            </a>
-          </li>
-          <li class="example-item">
-            <a href="pages/assessment.html">
-              <span class="example-title">Final Assessment - Combining Concepts</span>
-              <span class="example-summary">Bring everything together with a short mixed activity set.</span>
-            </a>
-          </li>
-        </ul>
+        <p class="examples-intro">
+          Work through structured coding activities designed to build confidence step by step.
+          Each example combines prediction, guided implementation, and practice tasks so you can
+          strengthen problem-solving before writing full programs independently.
+        </p>
+
+        <div class="examples-tabs" role="tablist" aria-label="Example previews">
+          <button type="button" class="examples-tab is-active" role="tab" aria-selected="true" data-example-key="example1">Example 1</button>
+          <button type="button" class="examples-tab" role="tab" aria-selected="false" data-example-key="example2">Example 2</button>
+          <button type="button" class="examples-tab" role="tab" aria-selected="false" data-example-key="example3">Example 3</button>
+          <button type="button" class="examples-tab" role="tab" aria-selected="false" data-example-key="assessment">Assessment</button>
+        </div>
+
+        <article class="examples-preview" aria-live="polite">
+          <div class="examples-preview-media">
+            <img
+              id="examplePreviewImage"
+              src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=960&q=80"
+              alt="Student coding at a laptop"
+              loading="lazy"
+            />
+          </div>
+          <div class="examples-preview-content">
+            <p class="examples-preview-kicker" id="examplePreviewKicker">Example 1</p>
+            <h3 class="examples-preview-title" id="examplePreviewTitle">Input Validation</h3>
+            <p class="examples-preview-description" id="examplePreviewDescription">
+              Design checks that keep user input safe, sensible, and in range before processing.
+            </p>
+            <a class="check-btn examples-start-btn" id="examplePreviewLink" href="pages/example1.html">Start Example 1</a>
+          </div>
+        </article>
       </section>
 
       <section class="card">
