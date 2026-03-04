@@ -667,6 +667,21 @@ body.is-complete main.content {
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
 
+.reveal-card {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 420ms ease,
+    transform 420ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.reveal-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .card::before {
   content: none;
 }

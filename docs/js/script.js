@@ -767,6 +767,38 @@ const initExamplesShowcase = () => {
     startRotation();
 };
 
+const initHomeCardReveal = () => {
+    if (!document.body.classList.contains("page-home")) return;
+
+    const cards = Array.from(document.querySelectorAll("main.content > .card"));
+    if (!cards.length) return;
+
+    cards.forEach((card, idx) => {
+        card.classList.add("reveal-card");
+        card.style.transitionDelay = `${Math.min(idx * 60, 220)}ms`;
+    });
+
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+        cards.forEach((card) => card.classList.add("is-visible"));
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-visible");
+            obs.unobserve(entry.target);
+        });
+    }, {
+        root: null,
+        threshold: 0.18,
+        rootMargin: "0px 0px -8% 0px"
+    });
+
+    cards.forEach((card) => observer.observe(card));
+};
+
 const runProgram = async () => {
     const programEl = document.getElementById("makeProgram");
     const caseSelect = document.getElementById("makeCase");
@@ -845,6 +877,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initAppbarEnhancements();
     initBackToTopFab();
     initExamplesShowcase();
+    initHomeCardReveal();
     enableRunButton();
     updateExpectedOutput();
     const statusEl = document.getElementById("runStatus");
