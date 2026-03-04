@@ -529,7 +529,7 @@ const enableRunButton = () => {
 
 const initGlobalFloatingNav = () => {
     // Keep custom nav implementations untouched.
-    if (document.querySelector(".v3-appbar") || document.querySelector(".floating-nav")) return;
+    if (document.querySelector(".appbar") || document.querySelector(".floating-nav")) return;
 
     const inPagesDir = window.location.pathname.includes("/docs/pages/");
     const homeHref = inPagesDir ? "../index.html" : "index.html";
@@ -549,6 +549,66 @@ const initGlobalFloatingNav = () => {
     `;
 
     document.body.prepend(nav);
+};
+
+const initAppbarEnhancements = () => {
+    const menuToggle = document.getElementById("appbarMenuToggle");
+    const navActions = document.getElementById("appbarNavActions");
+    const resumeLink = document.getElementById("appbarResumeLink");
+    const appbar = document.getElementById("appbar");
+
+    if (menuToggle && navActions) {
+        menuToggle.addEventListener("click", () => {
+            const open = navActions.classList.toggle("is-open");
+            menuToggle.setAttribute("aria-expanded", String(open));
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!appbar || !navActions.classList.contains("is-open")) return;
+            if (!appbar.contains(event.target)) {
+                navActions.classList.remove("is-open");
+                menuToggle.setAttribute("aria-expanded", "false");
+            }
+        });
+    }
+
+    if (!resumeLink) return;
+    const storagePrefix = "assessmentStepperState.v2:";
+    let best = null;
+
+    for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(storagePrefix)) continue;
+        const path = key.slice(storagePrefix.length);
+        if (!path.includes("/pages/")) continue;
+
+        let payload;
+        try {
+            payload = JSON.parse(localStorage.getItem(key) || "{}");
+        } catch {
+            continue;
+        }
+
+        const stepCount = Number(payload.stepCount || 0);
+        const index = Number(payload.index || 0);
+        if (stepCount < 2 || index <= 0) continue;
+
+        const progress = index / (stepCount - 1);
+        if (!best || progress > best.progress) {
+            best = { path, progress };
+        }
+    }
+
+    if (!best) return;
+    const docsMarker = "/docs/";
+    let href = "pages/example1.html";
+    const markerIndex = best.path.lastIndexOf(docsMarker);
+    if (markerIndex !== -1) {
+        href = best.path.slice(markerIndex + docsMarker.length);
+    }
+    resumeLink.href = href;
+    resumeLink.hidden = false;
+    resumeLink.title = "Resume your latest progress";
 };
 
 const runProgram = async () => {
@@ -626,6 +686,7 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    initAppbarEnhancements();
     initGlobalFloatingNav();
     enableRunButton();
     updateExpectedOutput();

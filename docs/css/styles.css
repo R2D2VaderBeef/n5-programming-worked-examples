@@ -152,6 +152,254 @@ body::before {
   }
 }
 
+.appbar {
+  --edge-angle: 0deg;
+  width: min(calc(100% - 32px), min(1100px, var(--max-width)));
+  margin: 0;
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(120deg, rgba(37, 99, 235, 0.12), rgba(20, 184, 166, 0.08));
+  backdrop-filter: blur(6px);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  overflow: clip;
+  transition: transform 220ms ease;
+}
+
+.appbar::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from calc(-45deg + var(--edge-angle)),
+    transparent 0deg,
+    transparent 300deg,
+    rgba(37, 99, 235, 0.85) 322deg,
+    rgba(37, 99, 235, 0.98) 340deg,
+    rgba(20, 184, 166, 0.9) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  filter: drop-shadow(0 0 6px rgba(37, 99, 235, 0.2)) drop-shadow(0 0 10px rgba(20, 184, 166, 0.14));
+}
+
+.appbar:hover,
+.appbar:focus-within {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.appbar:hover::after,
+.appbar:focus-within::after {
+  opacity: 1;
+  animation: edgeSweepBalanced 1.9s linear infinite;
+}
+
+.appbar-brand-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.appbar-brand-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  background: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-700);
+  font-weight: 800;
+  font-family: var(--font-code);
+  font-size: 0.9rem;
+  flex: 0 0 34px;
+}
+
+.appbar-brand-stack {
+  min-width: 0;
+}
+
+.appbar-brand {
+  font-weight: 800;
+  color: var(--ink-900);
+  line-height: 1.1;
+}
+
+.appbar-subtitle {
+  font-size: 0.79rem;
+  color: var(--ink-700);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appbar-menu-toggle {
+  display: none;
+  position: relative;
+  z-index: 2;
+  padding: 7px 12px;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--accent-700);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  overflow: clip;
+}
+
+.appbar-nav-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.appbar-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  border-radius: var(--radius-pill);
+  padding: 6px 11px;
+  font-size: 0.85rem;
+  color: var(--ink-800);
+  background: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  position: relative;
+  overflow: clip;
+}
+
+.appbar-nav-pill:hover,
+.appbar-nav-pill:focus-visible {
+  background: #eef5ff;
+  border-color: rgba(37, 99, 235, 0.45);
+  color: var(--accent-700);
+}
+
+.appbar-nav-pill.is-active {
+  background: linear-gradient(120deg, rgba(37, 99, 235, 0.18), rgba(20, 184, 166, 0.16));
+  border-color: rgba(37, 99, 235, 0.48);
+  color: var(--accent-700);
+}
+
+.appbar-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--success-600);
+  box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.18);
+  animation: statusDotPulse 1.35s ease-in-out infinite;
+}
+
+.appbar-resume[hidden] {
+  display: none !important;
+}
+
+.hero.hero-main {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding-top: 86px;
+}
+
+.hero.hero-main .hero-summary {
+  max-width: 66ch;
+}
+
+.hero.hero-main .hero-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hero.hero-main .outline-btn {
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  background: #fff;
+  color: var(--accent-700);
+}
+
+.hero.hero-main .outline-btn:hover,
+.hero.hero-main .outline-btn:focus-visible {
+  background: #eef5ff;
+  color: var(--accent-700);
+}
+
+@media (max-width: 980px) {
+  .appbar-subtitle {
+    max-width: 220px;
+  }
+
+  .appbar-menu-toggle {
+    display: inline-flex;
+  }
+
+  .appbar-nav-actions {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 235px;
+    max-width: 90vw;
+    background: #ffffff;
+    border: 1px solid rgba(159, 176, 201, 0.35);
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(11, 19, 36, 0.1);
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .appbar-nav-actions.is-open {
+    display: flex;
+  }
+
+  .appbar-nav-pill {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .appbar {
+    border-radius: 18px;
+    top: 14px;
+  }
+
+  .hero.hero-main {
+    padding-top: 84px;
+  }
+}
+
 .hero,
 .content,
 .site-footer {
@@ -1160,6 +1408,21 @@ button[disabled] {
   }
   100% {
     --edge-angle: 360deg;
+  }
+}
+
+@keyframes statusDotPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.18), 0 0 0 0 rgba(14, 159, 110, 0.34);
+  }
+  60% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.24), 0 0 0 8px rgba(14, 159, 110, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.18), 0 0 0 0 rgba(14, 159, 110, 0);
   }
 }
 
