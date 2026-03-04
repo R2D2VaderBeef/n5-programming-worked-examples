@@ -235,6 +235,50 @@ body::before {
   font-weight: 800;
   color: var(--ink-900);
   line-height: 1.1;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  text-shadow: 0 0 0 rgba(37, 99, 235, 0);
+  transition: text-shadow 220ms ease;
+}
+
+.appbar-brand::after {
+  content: "|";
+  display: inline-block;
+  margin-left: 2px;
+  line-height: 1.02;
+  transform: translateY(0.02em) scaleY(1.18);
+  color: rgba(31, 87, 205, 0.92);
+  -webkit-text-fill-color: rgba(31, 87, 205, 0.92);
+  opacity: 0;
+}
+
+.appbar:hover .appbar-brand,
+.appbar:focus-within .appbar-brand {
+  background-image: linear-gradient(
+    110deg,
+    var(--ink-900) 0%,
+    var(--ink-900) 38%,
+    rgba(37, 99, 235, 0.95) 50%,
+    rgba(20, 184, 166, 0.9) 58%,
+    var(--ink-900) 70%,
+    var(--ink-900) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 100% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation:
+    brandTextSweep 1.7s linear infinite,
+    brandGlowPulse 1.8s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(37, 99, 235, 0.16);
+}
+
+.appbar:hover .appbar-brand::after,
+.appbar:focus-within .appbar-brand::after {
+  animation: brandCursorBlink 850ms step-end infinite;
 }
 
 .appbar-subtitle {
@@ -1454,6 +1498,48 @@ button[disabled] {
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.18), 0 0 0 0 rgba(14, 159, 110, 0);
+  }
+}
+
+@keyframes brandTextSweep {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -120% 50%;
+  }
+}
+
+@keyframes brandGlowPulse {
+  0% {
+    text-shadow:
+      0 0 0 rgba(37, 99, 235, 0),
+      0 0 0 rgba(20, 184, 166, 0);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(37, 99, 235, 0.2),
+      0 0 16px rgba(20, 184, 166, 0.14);
+  }
+  100% {
+    text-shadow:
+      0 0 0 rgba(37, 99, 235, 0),
+      0 0 0 rgba(20, 184, 166, 0);
+  }
+}
+
+@keyframes brandCursorBlink {
+  0% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
