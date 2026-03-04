@@ -591,6 +591,35 @@ const initAppbarEnhancements = () => {
     resumeLink.title = "Resume your latest progress";
 };
 
+const initBackToTopFab = () => {
+    const existing = document.querySelector(".back-to-top-fab");
+    if (existing) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "back-to-top-fab";
+    button.setAttribute("aria-label", "Back to top");
+    button.innerHTML = `<span class="back-to-top-fab__icon" aria-hidden="true"></span>`;
+    document.body.appendChild(button);
+
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const updateVisibility = () => {
+        const shouldShow = window.scrollY > 260;
+        button.classList.toggle("is-visible", shouldShow);
+    };
+
+    button.addEventListener("click", () => {
+        window.scrollTo({
+            top: 0,
+            behavior: reduceMotion ? "auto" : "smooth"
+        });
+    });
+
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    updateVisibility();
+};
+
 const runProgram = async () => {
     const programEl = document.getElementById("makeProgram");
     const caseSelect = document.getElementById("makeCase");
@@ -667,6 +696,7 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("DOMContentLoaded", () => {
     initAppbarEnhancements();
+    initBackToTopFab();
     enableRunButton();
     updateExpectedOutput();
     const statusEl = document.getElementById("runStatus");

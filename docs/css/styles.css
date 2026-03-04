@@ -86,6 +86,54 @@ body::before {
   color: var(--ink-950);
 }
 
+.back-to-top-fab {
+  position: fixed;
+  right: clamp(16px, 2.2vw, 28px);
+  bottom: clamp(16px, 2.4vw, 30px);
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(37, 99, 235, 0.32);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(140deg, rgba(37, 99, 235, 0.94), rgba(20, 184, 166, 0.9));
+  box-shadow: 0 14px 24px rgba(31, 87, 205, 0.24), 0 2px 6px rgba(11, 19, 36, 0.14);
+  cursor: pointer;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0;
+  transform: translateY(10px) scale(0.94);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 220ms ease, filter 200ms ease, box-shadow 200ms ease;
+}
+
+.back-to-top-fab.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.back-to-top-fab:hover,
+.back-to-top-fab:focus-visible {
+  filter: saturate(1.08) brightness(1.03);
+  box-shadow: 0 16px 28px rgba(31, 87, 205, 0.28), 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.back-to-top-fab:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.back-to-top-fab__icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9l4-4 4 4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
+}
+
 .appbar {
   --edge-angle: 0deg;
   width: min(calc(100% - 32px), min(1100px, var(--max-width)));
@@ -324,6 +372,11 @@ body::before {
 }
 
 @media (max-width: 760px) {
+  .back-to-top-fab {
+    width: 46px;
+    height: 46px;
+  }
+
   .appbar {
     border-radius: 18px;
     top: 14px;
