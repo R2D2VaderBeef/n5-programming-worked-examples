@@ -354,6 +354,10 @@ body::before {
   margin-top: calc(var(--space-6) + 70px);
 }
 
+.page-inner .hero.hero-main {
+  margin-top: var(--space-6);
+}
+
 .hero-meta {
   display: flex;
   align-items: center;
