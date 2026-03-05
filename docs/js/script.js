@@ -805,6 +805,7 @@ const initStepper = () => {
                 showCompletionView({ scroll: true, save: false });
             }
             saveStepperState();
+            renderCompletionBadges(buildActivitySummaries());
         });
     }
 };
@@ -842,6 +843,7 @@ const resetAssessment = () => {
     removeStorage(getHintStorageKey());
     hintState = { checkpoints: {} };
     syncAdaptiveHintsUI();
+    renderCompletionBadges(buildActivitySummaries());
 };
 
 const getMakeInputs = (caseValue) => {
@@ -994,6 +996,148 @@ const buildActivitySummaries = () => {
     });
 };
 
+const buildBadgeStates = (summaries) => {
+    const summaryMap = new Map((summaries || []).map((item) => [item.key, item]));
+    const exampleKeys = ["example1", "example2", "example3"];
+    const allExamplesComplete = exampleKeys.every((key) => summaryMap.get(key)?.isComplete === true);
+    const assessmentComplete = summaryMap.get("assessment")?.isComplete === true;
+
+    return [
+        {
+            key: "badge-example1",
+            label: "Example 1 Complete",
+            earned: summaryMap.get("example1")?.isComplete === true
+        },
+        {
+            key: "badge-example2",
+            label: "Example 2 Complete",
+            earned: summaryMap.get("example2")?.isComplete === true
+        },
+        {
+            key: "badge-example3",
+            label: "Example 3 Complete",
+            earned: summaryMap.get("example3")?.isComplete === true
+        },
+        {
+            key: "badge-all-examples",
+            label: "All Examples Complete",
+            earned: allExamplesComplete
+        },
+        {
+            key: "badge-assessment",
+            label: "Assessment Complete",
+            earned: assessmentComplete
+        }
+    ];
+};
+
+const createBadgeChip = (badge) => {
+    const chip = document.createElement("span");
+    chip.className = `dashboard-badge${badge.earned ? " is-earned" : ""}`;
+    chip.textContent = badge.label;
+    return chip;
+};
+
+const buildBadgeSummaryText = (summaries, badges) => {
+    const dateLabel = new Date().toLocaleString();
+    const activityLines = summaries.map((item) => (
+        `- ${item.label}: ${item.statusLabel} (${Math.round(item.progress * 100)}%)`
+    ));
+    const earnedBadges = badges.filter((badge) => badge.earned).map((badge) => badge.label);
+    const badgeLine = earnedBadges.length
+        ? earnedBadges.join(", ")
+        : "None yet";
+
+    return [
+        "Crack the Code Progress Summary",
+        `Generated: ${dateLabel}`,
+        "",
+        "Activity status:",
+        ...activityLines,
+        "",
+        `Badges unlocked (${earnedBadges.length}/${badges.length}): ${badgeLine}`
+    ].join("\n");
+};
+
+const copyText = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+    }
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "true");
+    helper.style.position = "fixed";
+    helper.style.left = "-9999px";
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand("copy");
+    helper.remove();
+    return true;
+};
+
+const renderDashboardBadges = (summaries) => {
+    const root = document.getElementById("dashboardBadges");
+    if (!root) return;
+
+    const list = document.getElementById("dashboardBadgeList");
+    const summary = document.getElementById("dashboardBadgeSummary");
+    const copyBtn = document.getElementById("copyBadgeSummaryBtn");
+    const downloadBtn = document.getElementById("downloadBadgeSummaryBtn");
+    if (!list || !summary || !copyBtn || !downloadBtn) return;
+
+    const badges = buildBadgeStates(summaries);
+    const earnedCount = badges.filter((badge) => badge.earned).length;
+    list.innerHTML = "";
+    badges.forEach((badge) => list.appendChild(createBadgeChip(badge)));
+    summary.textContent = `${earnedCount} of ${badges.length} badges unlocked`;
+
+    const summaryText = buildBadgeSummaryText(summaries, badges);
+    copyBtn.onclick = async () => {
+        try {
+            await copyText(summaryText);
+            copyBtn.textContent = "Summary copied";
+            window.setTimeout(() => {
+                copyBtn.textContent = "Copy summary";
+            }, 1400);
+        } catch {
+            copyBtn.textContent = "Copy failed";
+            window.setTimeout(() => {
+                copyBtn.textContent = "Copy summary";
+            }, 1600);
+        }
+    };
+
+    downloadBtn.onclick = () => {
+        const blob = new Blob([summaryText], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "crack-the-code-progress-summary.txt";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    };
+};
+
+const renderCompletionBadges = (summaries) => {
+    const badgeContainers = Array.from(document.querySelectorAll("[data-completion-badges]"));
+    const summaryEls = Array.from(document.querySelectorAll("[data-completion-badge-summary]"));
+    if (!badgeContainers.length && !summaryEls.length) return;
+
+    const badges = buildBadgeStates(summaries);
+    const earnedCount = badges.filter((badge) => badge.earned).length;
+
+    badgeContainers.forEach((container) => {
+        container.innerHTML = "";
+        badges.forEach((badge) => container.appendChild(createBadgeChip(badge)));
+    });
+    summaryEls.forEach((el) => {
+        el.textContent = `Unlocked: ${earnedCount} of ${badges.length} badges`;
+    });
+};
+
 const initAppbarEnhancements = () => {
     const menuToggle = document.getElementById("appbarMenuToggle");
     const navActions = document.getElementById("appbarNavActions");
@@ -1030,14 +1174,16 @@ const initAppbarEnhancements = () => {
 
 const initLearningDashboard = () => {
     const root = document.getElementById("dashboard");
+    const summaries = buildActivitySummaries();
+    renderDashboardBadges(summaries);
+    renderCompletionBadges(summaries);
+
     if (!root) return;
 
     const cards = Array.from(root.querySelectorAll(".dashboard-progress-card[data-activity-key]"));
     const continueCta = document.getElementById("dashboardContinueCta");
     const recommendedText = document.getElementById("dashboardRecommendedText");
     const recommendedBtn = document.getElementById("dashboardRecommendedBtn");
-
-    const summaries = buildActivitySummaries();
     const summaryMap = new Map(summaries.map((item) => [item.key, item]));
 
     cards.forEach((card) => {

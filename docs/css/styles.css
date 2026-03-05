@@ -706,6 +706,29 @@ body.is-complete main.content {
   margin-top: var(--space-2);
 }
 
+.completion-badges {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.completion-badges .dashboard-badge {
+  background: #f7f9fd;
+}
+
+.completion-badges .dashboard-badge.is-earned {
+  background: linear-gradient(120deg, rgba(37, 99, 235, 0.14), rgba(20, 184, 166, 0.12));
+}
+
+.completion-badge-summary {
+  margin: 10px 0 0;
+  color: var(--ink-600);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .completion-actions {
   display: flex;
   justify-content: center;
@@ -1247,6 +1270,82 @@ body.is-modal-open {
   margin-top: var(--space-2);
   color: var(--ink-700);
   max-width: 72ch;
+}
+
+.dashboard-badges {
+  margin-top: var(--space-3);
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(244, 248, 253, 0.92));
+  padding: 12px 14px 14px;
+}
+
+.dashboard-badges__label {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 800;
+  color: var(--accent-700);
+}
+
+.dashboard-badges__list {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(159, 176, 201, 0.42);
+  background: #f4f7fb;
+  color: var(--ink-600);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.dashboard-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(159, 176, 201, 0.75);
+}
+
+.dashboard-badge.is-earned {
+  border-color: rgba(37, 99, 235, 0.38);
+  background: linear-gradient(120deg, rgba(37, 99, 235, 0.14), rgba(20, 184, 166, 0.13));
+  color: var(--ink-800);
+}
+
+.dashboard-badge.is-earned::before {
+  background: linear-gradient(120deg, var(--accent-600), var(--teal-500));
+}
+
+.dashboard-badges__summary {
+  margin: 10px 0 0;
+  color: var(--ink-600);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.dashboard-badges__actions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-badges__btn {
+  min-height: 42px;
+  padding: 10px 16px;
+  font-size: 0.83rem;
 }
 
 .dashboard-top {
@@ -2016,6 +2115,14 @@ body.is-modal-open {
 
   .dashboard-main {
     margin-top: var(--space-3);
+  }
+
+  .dashboard-badges__actions {
+    flex-direction: column;
+  }
+
+  .dashboard-badges__btn {
+    width: 100%;
   }
 
   .dashboard-stack {
