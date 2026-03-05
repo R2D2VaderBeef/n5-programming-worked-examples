@@ -81,6 +81,26 @@ body::before {
   z-index: -1;
 }
 
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 12px;
+  z-index: 1201;
+  background: #ffffff;
+  color: var(--ink-900);
+  border: 1px solid rgba(37, 99, 235, 0.45);
+  border-radius: var(--radius-pill);
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  transform: translateY(-140%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 ::selection {
   background: rgba(59, 130, 246, 0.22);
   color: var(--ink-950);
@@ -2093,6 +2113,12 @@ body.is-modal-open {
   transform: translateY(-1px);
 }
 
+.draggable:focus-visible {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22), 0 8px 14px rgba(13, 24, 43, 0.12);
+}
+
 pre {
   background: #f8fbff;
   border: 1px solid #dbe7f5;
@@ -2267,7 +2293,11 @@ select:focus-visible,
 textarea:focus-visible,
 a:focus-visible {
   outline: none;
-  box-shadow: var(--shadow-focus);
+  box-shadow: var(--shadow-focus), 0 0 0 1px rgba(31, 87, 205, 0.55);
+}
+
+main:focus {
+  outline: none;
 }
 
 select {
@@ -2436,6 +2466,10 @@ button[disabled] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .skip-link {
+    transition: none;
   }
 }
 

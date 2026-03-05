@@ -205,6 +205,8 @@ const getOrCreateRichFeedbackEl = (anchorEl, checkpointId) => {
         el = document.createElement("p");
         el.className = "rich-feedback";
         el.dataset.feedbackFor = checkpointId;
+        el.setAttribute("role", "status");
+        el.setAttribute("aria-live", "polite");
         host.appendChild(el);
     }
     return el;
@@ -1206,6 +1208,61 @@ const initWorksheetActions = () => {
     });
 };
 
+const initAccessibilityEnhancements = () => {
+    const main = document.querySelector("main");
+    if (main) {
+        if (!main.id) main.id = "main-content";
+        if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+    }
+
+    if (!document.querySelector(".skip-link") && main) {
+        const skip = document.createElement("a");
+        skip.className = "skip-link";
+        skip.href = `#${main.id}`;
+        skip.textContent = "Skip to main content";
+        document.body.insertBefore(skip, document.body.firstChild);
+    }
+
+    const menuToggle = document.getElementById("appbarMenuToggle");
+    if (menuToggle) {
+        menuToggle.setAttribute("aria-label", "Toggle navigation menu");
+        menuToggle.setAttribute("aria-haspopup", "true");
+    }
+
+    document.querySelectorAll(".appbar-nav-pill.is-active").forEach((el) => {
+        el.setAttribute("aria-current", "page");
+    });
+
+    // Keyboard fallback for drag-order tasks.
+    document.querySelectorAll(".parsons-container").forEach((container) => {
+        container.setAttribute("role", "list");
+        const items = Array.from(container.querySelectorAll(".draggable"));
+        items.forEach((item) => {
+            item.setAttribute("tabindex", "0");
+            item.setAttribute("role", "listitem");
+            item.setAttribute(
+                "aria-label",
+                `${(item.textContent || "Code line").trim()}. Use Arrow Up and Arrow Down to reorder.`
+            );
+
+            item.addEventListener("keydown", (event) => {
+                if (!(event.key === "ArrowUp" || event.key === "ArrowDown")) return;
+                event.preventDefault();
+                const parent = item.parentElement;
+                if (!parent) return;
+
+                if (event.key === "ArrowUp") {
+                    const prev = item.previousElementSibling;
+                    if (prev) parent.insertBefore(item, prev);
+                } else {
+                    const next = item.nextElementSibling;
+                    if (next) parent.insertBefore(next, item);
+                }
+            });
+        });
+    });
+};
+
 const initExamplesShowcase = () => {
     const root = document.getElementById("examples");
     if (!root) return;
@@ -1219,6 +1276,8 @@ const initExamplesShowcase = () => {
     const previewLink = document.getElementById("examplePreviewLink");
 
     if (!preview || !tabs.length || !previewImage || !previewKicker || !previewTitle || !previewDescription || !previewLink) return;
+    preview.id = preview.id || "examplesPreviewPanel";
+    preview.setAttribute("role", "tabpanel");
 
     const content = {
         example1: {
@@ -1329,6 +1388,8 @@ const initExamplesShowcase = () => {
     };
 
     tabs.forEach((tab, idx) => {
+        if (!tab.id) tab.id = `examplesTab${idx + 1}`;
+        tab.setAttribute("aria-controls", preview.id);
         tab.addEventListener("click", () => {
             showTab(idx);
             stopRotation();
@@ -1483,6 +1544,7 @@ const initGlassTooltips = () => {
 
     const tooltip = document.createElement("div");
     tooltip.className = "glass-tooltip";
+    tooltip.id = "globalGlassTooltip";
     tooltip.setAttribute("role", "tooltip");
     tooltip.setAttribute("aria-hidden", "true");
     document.body.appendChild(tooltip);
@@ -1500,6 +1562,7 @@ const initGlassTooltips = () => {
 
     const hideTooltip = () => {
         clearShowTimer();
+        if (activeTrigger) activeTrigger.removeAttribute("aria-describedby");
         activeTrigger = null;
         tooltip.classList.remove("is-visible");
         tooltip.setAttribute("aria-hidden", "true");
@@ -1531,6 +1594,7 @@ const initGlassTooltips = () => {
         const text = trigger.getAttribute("data-tooltip");
         if (!text) return;
         activeTrigger = trigger;
+        trigger.setAttribute("aria-describedby", tooltip.id);
         tooltip.textContent = text;
         tooltip.classList.remove("is-visible");
         tooltip.setAttribute("aria-hidden", "false");
@@ -1831,6 +1895,7 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    initAccessibilityEnhancements();
     initAppbarEnhancements();
     initLearningDashboard();
     initWorksheetActions();
