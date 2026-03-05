@@ -140,8 +140,11 @@ const loadStepperState = () => {
     }
 
     if (typeof payload.index === "number") {
-        showStep(Math.min(payload.index, stepperState.sections.length - 1));
-        stepperState.completed = payload.isComplete === true || payload.completed === true;
+        const restoredIndex = Math.min(payload.index, stepperState.sections.length - 1);
+        showStepSection(restoredIndex, { save: false });
+        if (payload.isComplete === true || payload.completed === true) {
+            showCompletionView({ scroll: false, save: false });
+        }
         return true;
     }
     return false;
@@ -423,6 +426,25 @@ const updateStepperState = () => {
 };
 
 const showStep = (index) => {
+    const completion = document.getElementById("completionScreen");
+    if (completion) completion.classList.remove("is-visible");
+    document.body.classList.remove("is-complete");
+    stepperState.completed = false;
+};
+
+const showCompletionView = ({ scroll = false, save = true } = {}) => {
+    const completion = document.getElementById("completionScreen");
+    if (completion) completion.classList.add("is-visible");
+    document.body.classList.add("is-complete");
+    stepperState.completed = true;
+    if (scroll) {
+        const completionCard = document.querySelector("#completionScreen .completion-card");
+        if (completionCard) completionCard.scrollIntoView({ behavior: "smooth" });
+    }
+    if (save) saveStepperState();
+};
+
+const showStepSection = (index, { save = true } = {}) => {
     stepperState.sections.forEach((section, i) => {
         section.classList.toggle("active", i === index);
     });
@@ -431,22 +453,19 @@ const showStep = (index) => {
     const progress = document.getElementById("stepperProgress");
     const prevBtn = document.getElementById("stepPrev");
     const nextBtn = document.getElementById("stepNext");
-    const completion = document.getElementById("completionScreen");
     const barFill = document.getElementById("stepperBarFill");
+    showStep(index);
     if (progress) {
         progress.textContent = `Step ${index + 1} of ${stepperState.sections.length}`;
     }
     if (prevBtn) prevBtn.disabled = index === 0;
     if (nextBtn) nextBtn.textContent = index === stepperState.sections.length - 1 ? "Finish" : "Next";
-    if (completion) completion.classList.remove("is-visible");
-    stepperState.completed = false;
-    document.body.classList.remove("is-complete");
     if (barFill) {
         const pct = ((index + 1) / stepperState.sections.length) * 100;
         barFill.style.width = `${pct}%`;
     }
     updateStepperState();
-    saveStepperState();
+    if (save) saveStepperState();
 };
 
 const initStepper = () => {
@@ -455,7 +474,7 @@ const initStepper = () => {
     stepperState.sections = sections;
     const restored = loadStepperState();
     if (!restored) {
-        showStep(0);
+        showStepSection(0);
     }
 
     const prevBtn = document.getElementById("stepPrev");
@@ -463,7 +482,7 @@ const initStepper = () => {
     if (prevBtn) {
         prevBtn.addEventListener("click", () => {
             if (stepperState.index > 0) {
-                showStep(stepperState.index - 1);
+                showStepSection(stepperState.index - 1);
             }
         });
     }
@@ -471,14 +490,9 @@ const initStepper = () => {
         nextBtn.addEventListener("click", () => {
             if (!isStepComplete(stepperState.sections[stepperState.index])) return;
             if (stepperState.index < stepperState.sections.length - 1) {
-                showStep(stepperState.index + 1);
+                showStepSection(stepperState.index + 1);
             } else {
-                const completion = document.getElementById("completionScreen");
-                if (completion) completion.classList.add("is-visible");
-                document.body.classList.add("is-complete");
-                stepperState.completed = true;
-                const completionCard = document.querySelector("#completionScreen .completion-card");
-                if (completionCard) completionCard.scrollIntoView({ behavior: "smooth" });
+                showCompletionView({ scroll: true, save: false });
             }
             saveStepperState();
         });
@@ -486,11 +500,7 @@ const initStepper = () => {
 };
 
 const restartStepper = () => {
-    const completion = document.getElementById("completionScreen");
-    if (completion) completion.classList.remove("is-visible");
-    document.body.classList.remove("is-complete");
-    stepperState.completed = false;
-    showStep(0);
+    showStepSection(0, { save: false });
     const main = document.querySelector("main.content");
     if (main) main.scrollIntoView({ behavior: "smooth" });
     removeStorage(getStorageKey());
@@ -518,11 +528,7 @@ const resetAssessment = () => {
     const actualEl = document.getElementById("makeActual");
     if (actualEl) actualEl.textContent = "Run your program to see the output here.";
     enableRunButton();
-    const completion = document.getElementById("completionScreen");
-    if (completion) completion.classList.remove("is-visible");
-    document.body.classList.remove("is-complete");
-    stepperState.completed = false;
-    showStep(0);
+    showStepSection(0, { save: false });
 };
 
 const getMakeInputs = (caseValue) => {
@@ -579,7 +585,9 @@ const initAppbarEnhancements = () => {
 
         const stepCount = Number(payload.stepCount || 0);
         const index = Number(payload.index || 0);
-        if (stepCount < 2 || index <= 0) continue;
+        const isComplete = payload.isComplete === true || payload.completed === true;
+        const isInProgress = stepCount >= 2 && index > 0 && index < stepCount && !isComplete;
+        if (!isInProgress) continue;
 
         const progress = index / (stepCount - 1);
         if (!best || progress > best.progress) {
