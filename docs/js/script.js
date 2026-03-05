@@ -20,6 +20,9 @@ let stepperState = {
 
 const STORAGE_NAMESPACE = "assessmentStepperState.v2";
 const getStorageKey = () => `${STORAGE_NAMESPACE}:${window.location.pathname}`;
+const HINT_STORAGE_NAMESPACE = "adaptiveHintState.v1";
+const getHintStorageKey = () => `${HINT_STORAGE_NAMESPACE}:${window.location.pathname}`;
+const ACTIVITY_PAGE_NAME = (window.location.pathname.split("/").pop() || "").toLowerCase();
 
 const readStorage = (key) => {
     try {
@@ -43,6 +46,229 @@ const removeStorage = (key) => {
     } catch {
         // Ignore storage removal failures.
     }
+};
+
+const HINT_MODEL = {
+    "example2.html": {
+        tick1: {
+            l1: "Focus on the loop line. How many item entries are required?",
+            l2: "Check the worked code: `range(5)` means the loop runs 5 times.",
+            l3: "Your answer should be the count of loop repetitions, not the final total.",
+            worked: "Because the program asks for 5 items, the loop repeats 5 times."
+        },
+        parsonsFeedback: {
+            l1: "Think setup first, then loop, then update, then final output.",
+            l2: "Initialize `total` before the loop starts.",
+            l3: "Order pattern: initialize -> loop header -> update inside loop -> print after loop.",
+            worked: "Correct order: `total = 0`, `for ...`, `total = total + price`, `print(total)`."
+        },
+        tick2: {
+            l1: "Only the number in the range changes from 5 to 10.",
+            l2: "Keep the loop variable and syntax exactly the same.",
+            l3: "Write the full line including colon at the end.",
+            worked: "Use: `for counter in range(10):`"
+        }
+    },
+    "assessment.html": {
+        tick1: { l1: "Look at the required item count.", l2: "The loop count matches the number of prices collected.", l3: "Use the exact numeric count.", worked: "The loop repeats 5 times." },
+        tick2: { l1: "Which loop keeps checking until input is valid?", l2: "Validation usually repeats while a bad condition is true.", l3: "Negative-price checking uses `while`.", worked: "Use `while` for repeated validation." },
+        tick3: { l1: "Find the variable that accumulates values.", l2: "It starts at zero and is updated each loop.", l3: "Look for `total = total + ...`.", worked: "The running total variable is `total`." },
+        tick4: { l1: "Should valid prices be kept for later traversal?", l2: "The program prints each value later, so it must store them.", l3: "The list is required for step D traversal.", worked: "Yes, valid prices should be stored in the list." },
+        sgA1Tick: { l1: "This line creates starting state.", l2: "Subgoal A is initialization/setup.", l3: "`total = 0` belongs to setup.", worked: "Answer: A." },
+        sgB1Tick: { l1: "Subgoal B is the repeating loop.", l2: "Pick the line that repeats exactly 5 times.", l3: "Look for the `for counter in range(5):` line.", worked: "Correct line: `for counter in range(5):`." },
+        sgC1Tick: { l1: "What gets added into total each cycle?", l2: "The blank is the current valid input value.", l3: "Use the same variable read from input.", worked: "Fill with `price`." },
+        sgD1Tick: { l1: "This line traverses items for display.", l2: "Traversal/processing list values is subgoal D.", l3: "Map line purpose, not syntax shape.", worked: "Answer: D." },
+        sgE1Tick: { l1: "Update total cumulatively row by row.", l2: "Start from 0, then add each new input.", l3: "Totals should be 2, then 5, then 9.", worked: "Running totals: 2, 5, 9." },
+        assessmentFeedback: { l1: "Order by problem flow: setup -> input loop -> validate -> store/update -> output.", l2: "Ensure validation (`while`) sits inside the main loop.", l3: "Average is calculated after data collection and before final prints.", worked: "Use the sequence shown in the expected arrangement for each stage." },
+        makeOutputTick: { l1: "Compare formatting and values against expected output.", l2: "Check spacing, commas, and order of lines.", l3: "Ensure totals/averages are computed from the chosen test case.", worked: "Match expected output exactly after running your program." }
+    }
+};
+
+let hintState = { checkpoints: {} };
+let hintPanels = [];
+
+const getSectionRequiredIds = (section) => {
+    if (!section) return [];
+    const requires = section.dataset.requires || "";
+    return requires.split(",").map((id) => id.trim()).filter(Boolean);
+};
+
+const readHintState = () => {
+    const raw = readStorage(getHintStorageKey());
+    if (!raw) return { checkpoints: {} };
+    try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object" && parsed.checkpoints && typeof parsed.checkpoints === "object") {
+            return parsed;
+        }
+    } catch {
+        // Ignore parse errors and return default state.
+    }
+    return { checkpoints: {} };
+};
+
+const saveHintState = () => {
+    writeStorage(getHintStorageKey(), JSON.stringify(hintState));
+};
+
+const getHintBucket = (checkpointId) => {
+    if (!hintState.checkpoints[checkpointId]) {
+        hintState.checkpoints[checkpointId] = {
+            attempts: 0,
+            shownLevel: 0,
+            showCount: 0,
+            revealCount: 0,
+            revealedWorked: false,
+            lastUsedAt: 0
+        };
+    }
+    return hintState.checkpoints[checkpointId];
+};
+
+const getCheckpointHints = (checkpointId, section) => {
+    const byPage = HINT_MODEL[ACTIVITY_PAGE_NAME] || {};
+    if (byPage[checkpointId]) return byPage[checkpointId];
+    const sectionTitle = (section?.querySelector("h2")?.textContent || "this step").trim();
+    return {
+        l1: `Break ${sectionTitle} into one small check at a time.`,
+        l2: "Compare your answer against the worked code and focus on variable/loop purpose.",
+        l3: "Trace one concrete example input slowly and verify each intermediate value.",
+        worked: "Use the worked example structure: initialize -> loop/validate -> process -> output."
+    };
+};
+
+const getActiveCheckpointId = (section) => {
+    const ids = getSectionRequiredIds(section);
+    if (!ids.length) return null;
+    const firstIncomplete = ids.find((id) => {
+        const el = document.getElementById(id);
+        return !(el && el.dataset.correct === "true");
+    });
+    return firstIncomplete || ids[0];
+};
+
+const renderHintPanel = (panelData) => {
+    const { section, metaEl, hintEl, showBtn, revealBtn } = panelData;
+    const checkpointId = getActiveCheckpointId(section);
+    if (!checkpointId) {
+        panelData.root.classList.add("is-hidden");
+        return;
+    }
+
+    panelData.root.classList.remove("is-hidden");
+    const bucket = getHintBucket(checkpointId);
+    const hints = getCheckpointHints(checkpointId, section);
+    const unlockedLevel = Math.min(3, bucket.attempts);
+    const displayedLevel = Math.min(3, Math.max(0, bucket.shownLevel));
+
+    metaEl.textContent = unlockedLevel > 0
+        ? `Attempts: ${bucket.attempts} • Unlocked: Level ${unlockedLevel}`
+        : `Attempts: ${bucket.attempts} • Complete one failed attempt to unlock hints`;
+
+    if (displayedLevel > 0) {
+        hintEl.innerHTML = `<p><strong>Hint Level ${displayedLevel}:</strong> ${hints[`l${displayedLevel}`]}</p>`;
+        if (bucket.revealedWorked) {
+            hintEl.innerHTML += `<p class="hint-panel__worked"><strong>Worked hint:</strong> ${hints.worked}</p>`;
+        }
+    } else {
+        hintEl.innerHTML = "<p>Need a nudge? Use Show hint to reveal a guided clue.</p>";
+    }
+
+    if (displayedLevel >= 3) {
+        showBtn.textContent = "All hint levels used";
+    } else {
+        showBtn.textContent = displayedLevel > 0 ? "Show stronger hint" : "Show hint";
+    }
+    showBtn.disabled = unlockedLevel === 0 || displayedLevel >= 3;
+    if (bucket.revealedWorked) {
+        revealBtn.textContent = "Worked hint revealed";
+    } else {
+        revealBtn.textContent = "Reveal worked hint";
+    }
+    revealBtn.disabled = displayedLevel < 2 || bucket.revealedWorked;
+};
+
+const syncAdaptiveHintsUI = () => {
+    hintPanels.forEach((panelData) => renderHintPanel(panelData));
+};
+
+const updateHintCheckpointResult = (checkpointId, correct) => {
+    if (!checkpointId) return;
+    const bucket = getHintBucket(checkpointId);
+    if (!correct) {
+        bucket.attempts += 1;
+    }
+    bucket.lastUsedAt = Date.now();
+    saveHintState();
+    syncAdaptiveHintsUI();
+};
+
+const initAdaptiveHints = () => {
+    if (!document.querySelector(".step-section[data-requires]")) return;
+
+    hintState = readHintState();
+    hintPanels = [];
+
+    const sections = Array.from(document.querySelectorAll(".step-section[data-requires]"));
+    sections.forEach((section) => {
+        const panel = document.createElement("div");
+        panel.className = "hint-panel";
+        panel.innerHTML = `
+          <div class="hint-panel__head">
+            <p class="hint-panel__title">Adaptive hints</p>
+            <p class="hint-panel__meta"></p>
+          </div>
+          <div class="hint-panel__body"></div>
+          <div class="hint-panel__actions">
+            <button type="button" class="check-btn hint-panel__btn-show">Show hint</button>
+            <button type="button" class="check-btn hint-panel__btn-reveal">Reveal worked hint</button>
+          </div>
+        `;
+        section.appendChild(panel);
+
+        const panelData = {
+            root: panel,
+            section,
+            metaEl: panel.querySelector(".hint-panel__meta"),
+            hintEl: panel.querySelector(".hint-panel__body"),
+            showBtn: panel.querySelector(".hint-panel__btn-show"),
+            revealBtn: panel.querySelector(".hint-panel__btn-reveal")
+        };
+
+        panelData.showBtn.addEventListener("click", () => {
+            const checkpointId = getActiveCheckpointId(section);
+            if (!checkpointId) return;
+            const bucket = getHintBucket(checkpointId);
+            const unlockedLevel = Math.min(3, bucket.attempts);
+            if (unlockedLevel === 0) return;
+            if (bucket.shownLevel >= 3) return;
+            const nextLevel = bucket.shownLevel < unlockedLevel
+                ? bucket.shownLevel + 1
+                : Math.min(3, Math.max(1, bucket.shownLevel));
+            bucket.shownLevel = nextLevel;
+            bucket.showCount += 1;
+            bucket.lastUsedAt = Date.now();
+            saveHintState();
+            syncAdaptiveHintsUI();
+        });
+
+        panelData.revealBtn.addEventListener("click", () => {
+            const checkpointId = getActiveCheckpointId(section);
+            if (!checkpointId) return;
+            const bucket = getHintBucket(checkpointId);
+            if (bucket.shownLevel < 2) return;
+            if (bucket.revealedWorked) return;
+            bucket.revealedWorked = true;
+            bucket.revealCount += 1;
+            bucket.lastUsedAt = Date.now();
+            saveHintState();
+            syncAdaptiveHintsUI();
+        });
+
+        hintPanels.push(panelData);
+    });
+
+    syncAdaptiveHintsUI();
 };
 
 const saveStepperState = () => {
@@ -151,22 +377,24 @@ const loadStepperState = () => {
     return false;
 };
 
-const setTickState = (tick, correct) => {
+const setTickState = (tick, correct, checkpointId = null) => {
     if (!tick) return;
     tick.dataset.correct = correct ? "true" : "false";
     tick.style.display = "inline";
     tick.textContent = correct ? " ✔ Correct" : " ✖ Try again";
     tick.style.color = correct ? "var(--teal-500)" : "#e63946";
+    updateHintCheckpointResult(checkpointId || tick.id, correct);
     updateStepperState();
     saveStepperState();
 };
 
-const setFeedbackState = (el, correct, message) => {
+const setFeedbackState = (el, correct, message, checkpointId = null) => {
     if (!el) return;
     el.dataset.correct = correct ? "true" : "false";
     el.textContent = message;
     el.style.color = correct ? "var(--teal-500)" : "#e63946";
     el.style.fontWeight = "700";
+    updateHintCheckpointResult(checkpointId || el.id, correct);
     updateStepperState();
     saveStepperState();
 };
@@ -179,7 +407,7 @@ const checkAnswer = (inputId, correctAnswer, tickId) => {
     const cleanCorrect = correctAnswer.toLowerCase().replace(/\s/g, '');
     const cleanUser = userInput.replace(/\s/g, '');
 
-    setTickState(tick, cleanUser === cleanCorrect);
+    setTickState(tick, cleanUser === cleanCorrect, tickId);
 };
 
 function allowDrop(ev) {
@@ -250,9 +478,9 @@ const verifyParsons = (containerId, correctIds, feedbackId) => {
     }
 
     if (isCorrect) {
-        setFeedbackState(feedback, true, "✔ Excellent! The logic is in the correct order.");
+        setFeedbackState(feedback, true, "✔ Excellent! The logic is in the correct order.", feedbackId);
     } else {
-        setFeedbackState(feedback, false, "✖ Try again. Think: Initialize -> Loop -> Process -> Output.");
+        setFeedbackState(feedback, false, "✖ Try again. Think: Initialize -> Loop -> Process -> Output.", feedbackId);
     }
 };
 
@@ -271,7 +499,7 @@ const checkChoice = (groupId, correctValue, tickId) => {
     const selected = (container.dataset.selected || "").trim().toLowerCase();
     const correct = correctValue.trim().toLowerCase();
     const tick = document.getElementById(tickId);
-    setTickState(tick, selected === correct);
+    setTickState(tick, selected === correct, tickId);
 };
 
 const selectLine = (groupId, value, buttonEl) => {
@@ -289,7 +517,7 @@ const checkLineChoice = (groupId, correctValue, tickId) => {
     const selected = (container.dataset.selected || "").replace(/\s/g, "").toLowerCase();
     const correct = correctValue.replace(/\s/g, "").toLowerCase();
     const tick = document.getElementById(tickId);
-    setTickState(tick, selected === correct);
+    setTickState(tick, selected === correct, tickId);
 };
 
 const checkTrace = (inputIds, expectedValues, tickId) => {
@@ -300,7 +528,7 @@ const checkTrace = (inputIds, expectedValues, tickId) => {
         return el.value.trim() === expectedValues[idx];
     });
 
-    setTickState(tick, isCorrect);
+    setTickState(tick, isCorrect, tickId);
 };
 
 const normalizeOutput = (text) => {
@@ -328,15 +556,7 @@ const checkOutput = (caseSelectId, outputId, tickId) => {
     const expected = expectedOutputs[selectedCase] || "";
     const userOutput = outputEl.value;
 
-    if (normalizeOutput(userOutput) === normalizeOutput(expected)) {
-        tick.style.display = "inline";
-        tick.textContent = " ✔ Correct";
-        tick.style.color = "var(--teal-500)";
-    } else {
-        tick.style.display = "inline";
-        tick.textContent = " ✖ Try again";
-        tick.style.color = "#e63946";
-    }
+    setTickState(tick, normalizeOutput(userOutput) === normalizeOutput(expected), tickId);
 };
 
 const updateExpectedOutput = () => {
@@ -368,7 +588,7 @@ const checkActualOutput = (caseSelectId, actualOutputId, tickId) => {
     const expected = expectedOutputs[caseSelect.value] || "";
     const actual = actualEl.textContent || "";
 
-    setTickState(tick, normalizeOutput(actual) === normalizeOutput(expected));
+    setTickState(tick, normalizeOutput(actual) === normalizeOutput(expected), tickId);
 };
 
 const markComplete = (tickId) => {
@@ -378,6 +598,7 @@ const markComplete = (tickId) => {
     tick.style.display = "inline";
     tick.textContent = " ✔ Correct";
     tick.style.color = "var(--teal-500)";
+    updateHintCheckpointResult(tickId, true);
     updateStepperState();
     saveStepperState();
 };
@@ -443,6 +664,7 @@ const showCompletionView = ({ scroll = false, save = true } = {}) => {
         if (completionCard) completionCard.scrollIntoView({ behavior: "smooth" });
     }
     if (save) saveStepperState();
+    syncAdaptiveHintsUI();
 };
 
 const showStepSection = (index, { save = true } = {}) => {
@@ -530,6 +752,9 @@ const resetAssessment = () => {
     if (actualEl) actualEl.textContent = "Run your program to see the output here.";
     enableRunButton();
     showStepSection(0, { save: false });
+    removeStorage(getHintStorageKey());
+    hintState = { checkpoints: {} };
+    syncAdaptiveHintsUI();
 };
 
 const getMakeInputs = (caseValue) => {
@@ -554,6 +779,7 @@ const ACTIVITY_DEFINITIONS = [
 ];
 
 const STORAGE_PREFIX = `${STORAGE_NAMESPACE}:`;
+const HINT_STORAGE_PREFIX = `${HINT_STORAGE_NAMESPACE}:`;
 
 const resolveActivityHref = (activityPath) => {
     const inPagesDir = window.location.pathname.includes("/docs/pages/");
@@ -606,6 +832,39 @@ const readBestPayloadForPathSuffix = (pathSuffix) => {
     return bestPayload;
 };
 
+const readHintAnalyticsForPathSuffix = (pathSuffix) => {
+    let payload = null;
+
+    for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(HINT_STORAGE_PREFIX)) continue;
+        const path = key.slice(HINT_STORAGE_PREFIX.length);
+        if (!path.endsWith(pathSuffix)) continue;
+
+        try {
+            payload = JSON.parse(localStorage.getItem(key) || "{}");
+        } catch {
+            payload = null;
+        }
+        break;
+    }
+
+    const checkpoints = payload?.checkpoints;
+    if (!checkpoints || typeof checkpoints !== "object") {
+        return { hintsUsed: 0, workedRevealed: 0 };
+    }
+
+    let hintsUsed = 0;
+    let workedRevealed = 0;
+    Object.values(checkpoints).forEach((bucket) => {
+        if (!bucket || typeof bucket !== "object") return;
+        hintsUsed += Number(bucket.showCount || 0);
+        workedRevealed += Number(bucket.revealCount || 0);
+    });
+
+    return { hintsUsed, workedRevealed };
+};
+
 const isPayloadStarted = (payload) => {
     if (!payload || typeof payload !== "object") return false;
     const index = Number(payload.index || 0);
@@ -623,6 +882,7 @@ const isPayloadStarted = (payload) => {
 const buildActivitySummaries = () => {
     return ACTIVITY_DEFINITIONS.map((activity) => {
         const payload = readBestPayloadForPathSuffix(activity.path);
+        const hintAnalytics = readHintAnalyticsForPathSuffix(activity.path);
         const stepCount = Number(payload?.stepCount || 0);
         const index = Number(payload?.index || 0);
         const isComplete = payload?.isComplete === true || payload?.completed === true;
@@ -641,7 +901,8 @@ const buildActivitySummaries = () => {
             isComplete,
             progress,
             updatedAt: Number(payload?.updatedAt || 0),
-            statusLabel: isComplete ? "Complete" : (inProgress ? "In progress" : "Not started")
+            statusLabel: isComplete ? "Complete" : (inProgress ? "In progress" : "Not started"),
+            hintAnalytics
         };
     });
 };
@@ -701,6 +962,8 @@ const initLearningDashboard = () => {
         const statusEl = card.querySelector("[data-status]");
         const fillEl = card.querySelector("[data-progress-fill]");
         const actionEl = card.querySelector("[data-card-action]");
+        const hintsUsedEl = card.querySelector("[data-hints-used]");
+        const workedRevealedEl = card.querySelector("[data-worked-revealed]");
 
         if (statusEl) {
             statusEl.textContent = summary.statusLabel;
@@ -717,6 +980,13 @@ const initLearningDashboard = () => {
         if (actionEl) {
             actionEl.href = summary.href;
             actionEl.textContent = summary.isComplete ? "Review" : (summary.inProgress ? "Continue" : "Start");
+        }
+
+        if (hintsUsedEl) {
+            hintsUsedEl.textContent = `Hints used: ${summary.hintAnalytics.hintsUsed}`;
+        }
+        if (workedRevealedEl) {
+            workedRevealedEl.textContent = `Worked hints revealed: ${summary.hintAnalytics.workedRevealed}`;
         }
     });
 
@@ -1429,6 +1699,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initDefaultTooltipCopy();
     initGlassTooltips();
     initAssessmentGate();
+    initAdaptiveHints();
     enableRunButton();
     updateExpectedOutput();
     const statusEl = document.getElementById("runStatus");
