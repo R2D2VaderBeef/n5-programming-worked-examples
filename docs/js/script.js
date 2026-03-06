@@ -51,6 +51,20 @@ const removeStorage = (key) => {
 };
 
 const HINT_MODEL = {
+    "example1.html": {
+        tick1: {
+            l1: "Consider the subgoals. How would you go about implementing Subgoal D?",
+            l2: "Consider the subgoals. How would you go about implementing Subgoal D?",
+            l3: "Consider the subgoals. How would you go about implementing Subgoal D?",
+            worked: "The program needs a loop to repeatedly query the user until they provide a valid input."
+        },
+        tick2: {
+            l1: "Consider when the loop should terminate.",
+            l2: "Consider how many times the loop will need to run.",
+            l3: "Can we know how many times the loop will need to run?",
+            worked: "A while loop is required here, as we want to loop until a condition (valid input has been provided) is met."
+        }
+    },
     "example2.html": {
         tick1: {
             l1: "Focus on the loop line. How many item entries are required?",
@@ -87,6 +101,18 @@ const HINT_MODEL = {
 };
 
 const FEEDBACK_MAP = {
+    "example1.html": {
+        tick1: {
+            correct: "We will need a loop here to repeatedly query the user until they provide a valid input.",
+            incorrect: "Try again.",
+            next: "Review the subgoals and consider how you would implement them in code."
+        },
+        tick2: {
+            correct: "A while loop is required here, as we want to loop until a condition (valid input has been provided) is met.",
+            incorrect: "Try again.",
+            next: "Review the subgoals and consider how you would implement them in code."
+        }
+    },
     "example2.html": {
         tick1: {
             correct: "Good prediction. You matched the fixed loop count.",
