@@ -1936,3 +1936,12 @@ button[disabled] {
 .w-full {
   width: 100%;
 }
+
+.code-comment {
+  color: var(--ink-500)
+}
+
+details.card summary {
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+}

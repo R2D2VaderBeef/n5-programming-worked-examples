@@ -8,6 +8,10 @@ const nextStep = (current, next) => {
         if (nextEl.id === "fullCode") {
             nextEl.dataset.correct = "true";
             updateStepperState();
+            example = document.getElementById("workedExample")
+            if (example) {
+                example.classList.remove('hidden');
+            }
         }
     }
 };
